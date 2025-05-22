@@ -88,6 +88,24 @@ func (p *panel) Content() string {
 	return b.String()
 }
 
+func (p *panel) PerSecond(f func(string) bool) float64 {
+	t := time.Now().Add(-3 * time.Second)
+	var count int
+	for i, n := p.count-1, 0; i >= 0 && n < len(p.round); {
+		e := &p.round[i%len(p.round)]
+		if t.After(e.time) {
+			break
+		}
+		if f(e.msg) {
+			count++
+		}
+		i--
+		n++
+	}
+	count = count * 100 / 3
+	return float64(count) / 100
+}
+
 func Groups() []string {
 	lock.Lock()
 	defer lock.Unlock()
@@ -103,11 +121,7 @@ func Groups() []string {
 	return names
 }
 
-func Content() string {
-	return ContentBy("")
-}
-
-func ContentBy(group string) string {
+func Output(group string) string {
 	lock.Lock()
 	defer lock.Unlock()
 
@@ -115,4 +129,20 @@ func ContentBy(group string) string {
 		return p.Content()
 	}
 	return ""
+}
+
+func CountPerSecond(group string, contains string) float64 {
+	return CountPerSecondFunc(group, func(s string) bool {
+		return strings.Contains(s, contains)
+	})
+}
+
+func CountPerSecondFunc(group string, f func(string) bool) float64 {
+	lock.Lock()
+	defer lock.Unlock()
+
+	if p, ok := panels[group]; ok {
+		return p.PerSecond(f)
+	}
+	return 0
 }

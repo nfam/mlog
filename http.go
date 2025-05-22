@@ -8,7 +8,7 @@ import (
 
 func HandleOutput() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		write(w, ContentBy(r.URL.Query().Get("group")), http.StatusOK)
+		write(w, Output(r.URL.Query().Get("group")), http.StatusOK)
 	}
 }
 
@@ -20,7 +20,7 @@ func HandleGroup() http.HandlerFunc {
 
 func HandleGroupOutput() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		write(w, ContentBy(r.PathValue("group")), http.StatusOK)
+		write(w, Output(r.PathValue("group")), http.StatusOK)
 	}
 }
 
